@@ -1,0 +1,56 @@
+= EnvKey Client
+
+Simple java client to get back the environment.
+
+== Building
+
+Just run maven using a JDK 1.8.
+
+[source]
+----
+mvn clean install
+----
+
+== Manual Dump of the Environment
+
+`com.github.rmannibucau.envkey.Main` allows to test an `ENVKEY` directly:
+
+[source]
+----
+java -cp envkey-client/target/classes com.github.rmannibucau.envkey.Main $ENVKEY
+----
+
+== Programmatic Usage
+
+All is based on `EnvKey` class:
+
+[source,java]
+----
+Map<String, String> values = new EnvKey().setKey(envKeyValue).load();
+----
+
+Several options are there:
+
+- HttpClient: how to call the remote server, default uses JVM `HttpUrlConnection` (no dependency)
+- JsonReader: how to call the deserialize the JSON, default uses JSON-P (default dependency/implementation is Apache Johnzon)
+- OpenGPG: how to read GPG data, default uses BouncyCastle
+
+IMPORTANT: `~/.env` is supported and will be used to read the default key.
+
+== Integrations
+
+=== DeltaSpike
+
+EnvKey is auto registered, `ENVKEY` is read in primordial `ConfigSources` (system properties, environment)
+through the key `com.github.rmannibucau.envkey.value`, alternatively it uses `~/.env` fallback. `com.github.rmannibucau.envkey.force`
+allows to make the startup fails if EnvKey is not accessible.
+
+=== Spring
+
+`com.github.rmannibucau.envkey.integration.spring.EnvKeyConfiguration` configuration registers
+the ENVKEY `PropertySource`. `com.github.rmannibucau.envkey.value` system property allows to override the key,
+if not set `~/.env` is used. `com.github.rmannibucau.envkey.force` system property allows to make the startup fails if EnvKey is not accessible.
+
+==== Spring Boot
+
+`@EnableEnvKey` auto activate ENVKEY for your boot application.
