@@ -7,18 +7,18 @@ import com.github.rmannibucau.envkey.spi.HttpClient;
 import com.github.rmannibucau.envkey.spi.JsonReader;
 import com.github.rmannibucau.envkey.spi.OpenGPG;
 
-import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.FileReader;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.Proxy;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
+import java.util.Properties;
 
 import static java.util.Collections.emptyMap;
 import static java.util.Objects.requireNonNull;
@@ -108,8 +108,10 @@ public class EnvKey {
             key = Optional.of(new File(System.getProperty("user.home"), ".env"))
                     .filter(File::exists)
                     .map(f -> {
-                        try (final BufferedReader reader = new BufferedReader(new FileReader(f))) {
-                            return reader.lines().collect(Collectors.joining()).trim();
+                        try (final InputStream stream = new FileInputStream(f)) {
+                            return new Properties() {{
+                                load(stream);
+                            }}.getProperty("ENVKEY");
                         } catch (IOException e) {
                             throw new IllegalArgumentException(e);
                         }
